@@ -84,7 +84,7 @@ function rra(&$la){
 
 /**
  * fait une rotation de $lb vers la fin
- */
+ */   
 function rrb(&$lb){
     // traitement ...
 }
