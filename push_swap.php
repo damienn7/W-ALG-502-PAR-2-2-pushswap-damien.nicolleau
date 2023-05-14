@@ -17,14 +17,24 @@ function main($argv)
             if (is_numeric($value)) {
 
                 array_push($la, $value);
-
-
+            } else {
+                echo "    Veuillez saisir des valeurs numeriques !    ";
+                return;
             }
         }
     }
-    $la_sorted = second_sort($la, $lb);
 
-    var_dump($la_sorted);
+    // for ($i=0; $i < 500; $i++) { 
+    //     array_push($la, random_int(1,1000));
+    // }
+    if (count($la)<2) {
+        print "\n";
+        return;
+    }
+    $la_sorted = second_sort($la, $lb, min($la), max($la));
+    // $la_sorted = first_sort($la, $lb);
+    // var_dump($la_sorted);
+    print trim($la_sorted)."\n";
 
 }
 
@@ -37,10 +47,9 @@ function main($argv)
 function pa(&$la, &$lb)
 {
     // traitement ...
-
     $first = array_shift($lb);
-    array_unshift($la, $first);
-    print 'pa ';
+    $la = array_merge((array) $first, $la);
+    return 'pa ';
 }
 
 /**
@@ -51,9 +60,8 @@ function pb(&$la, &$lb)
 {
     // traitement ...
     $first = array_shift($la);
-    array_unshift($lb, $first);
-    // $lb = array_reverse($lb);
-    print 'pb ';
+    $lb = array_merge((array) $first, $lb);
+    return 'pb ';
 }
 
 /**
@@ -66,7 +74,7 @@ function sa(&$la)
     $interm = $la[0];
     $la[0] = $la[1];
     $la[1] = $interm;
-    print 'sa ';
+    return 'sa ';
 }
 
 /**
@@ -79,10 +87,125 @@ function sb(&$lb)
     $interm = $lb[0];
     $lb[0] = $lb[1];
     $lb[1] = $interm;
-    print 'sb ';
+    return 'sb ';
 }
 
-function second_sort(array &$la, array &$lb)
+function second_sort(array &$la, array &$lb, $min, $max)
+{
+    // rb($lb);
+    // ra($la);
+    // rrb($lb);
+
+    // rra($la); -> met le dernier en premiere position (ra fait l'inverse)
+    $order = false;
+    $liste_of_actions = "";
+    do {
+        if ($la[0] > $la[1]) {
+            $liste_of_actions .= sa($la);
+        }
+        for ($i = 0; $i < count($la); $i++) {
+            if ($i > 0 && $i + 1 < count($la)) {
+                if ($la[0]>$la[count($la)-1]) {
+                    $liste_of_actions .= ra($la);
+                }
+                if ($la[$i] > $la[$i + 1]) {
+                    for ($j = 0; $j < $i; $j++) {
+                        $liste_of_actions .= pb($la, $lb);
+                    }
+                    if ($la[0] > $la[1]) {
+                        $liste_of_actions .= sa($la);
+                    }
+                    for ($k = 0; $k < $i; $k++) {
+                        $liste_of_actions .= pa($la, $lb);
+                    }
+                }
+            }
+        }
+        if (isOrdered($la, count($la)) == true && count($lb) == 0) {
+            $order = true;
+        }
+    } while ($order == false);
+
+    // return ["la" => $la, "lb" => $lb, "min" => $min, "max" => $max];
+    return $liste_of_actions;
+}
+
+/**
+ * execute sa et sb en meme temps
+ */
+function sc(&$la, &$lb)
+{
+    sa($la);
+    sb($lb);
+    return 'sc ';
+}
+
+/**
+ * fait une rotation de $la vers le debut
+ */
+function ra(&$la)
+{
+    // traitement ...
+    $first = array_shift($la);
+    array_push($la, $first);
+    return 'ra ';
+}
+
+/**
+ * fait une rotation de $lb vers le debut
+ */
+function rb(&$lb)
+{
+    // traitement ...
+    $first = array_shift($lb);
+    array_push($lb, $first);
+    return 'rb ';
+}
+
+/**
+ * execute ra et rb en meme temps
+ */
+function rr(&$la, &$lb)
+{
+    ra($lb);
+    rb($lb);
+    return 'rr ';
+}
+
+/**
+ * fait une rotation de $la vers la fin
+ */
+function rra(&$la)
+{
+    // traitement ...
+    $last = array_pop($la);
+    // array_unshift($la, $last);
+    $la = array_merge((array) $last, $la);
+    return 'rra';
+}
+
+/**
+ * fait une rotation de $lb vers la fin
+ */
+function rrb(&$lb)
+{
+    // traitement ...
+    $last = array_pop($lb);
+    array_unshift($lb, $last);
+    return 'rrb ';
+}
+
+/**
+ * execute rra et rrb en meme temps
+ */
+function rrr(&$la, &$lb)
+{
+    rra($la);
+    rrb($lb);
+    return 'rrr ';
+}
+
+function first_sort(array &$la, array &$lb)
 {
     $order = false;
     do {
@@ -130,71 +253,7 @@ function isOrdered($table, $len)
 }
 
 
-/**
- * execute sa et sb en meme temps
- */
-function sc(&$la, &$lb)
-{
-    sa($la);
-    sb($lb);
-    print 'sc ';
-}
 
-/**
- * fait une rotation de $la vers le debut
- */
-function ra(&$la)
-{
-    // traitement ...
-    print 'ra ';
-}
-
-/**
- * fait une rotation de $lb vers le debut
- */
-function rb(&$lb)
-{
-    // traitement ...
-    print 'rb ';
-}
-
-/**
- * execute ra et rb en meme temps
- */
-function rr(&$la, &$lb)
-{
-    ra($lb);
-    rb($lb);
-    print 'rr ';
-}
-
-/**
- * fait une rotation de $la vers la fin
- */
-function rra(&$la)
-{
-    // traitement ...
-    print 'rra ';
-}
-
-/**
- * fait une rotation de $lb vers la fin
- */
-function rrb(&$lb)
-{
-    // traitement ...
-    print 'rrb ';
-}
-
-/**
- * execute rra et rrb en meme temps
- */
-function rrr(&$la, &$lb)
-{
-    rra($la);
-    rrb($lb);
-    print 'rrr ';
-}
 
 
 // ___________________  NOTES  ___________________
